@@ -1,4 +1,8 @@
+const { getCustomName, updateCustomName, getIdByCustomName } = require('./database');
+const log = require('./log');
 const Log = require('./log');
+const sleep = require('./sleep');
+const { switchBotDevices } = require('./switchbot');
 
 const express = require('express'),
     app = express();
@@ -11,44 +15,122 @@ app.get('/', (req, res) => {
 
 //Get list of devices
 app.get('/devices', (req, res) => {
-    res.send('Hello Devices!');
+    res.send(JSON.stringify(switchBotDevices.map(d => {
+        return {
+            id: d.id,
+            type: d.constructor.name,
+            customName: getCustomName(d.id)
+        }
+    })));
     Log("/devices Route called.");
 });
 
 //Get device by id
-app.get('/devices/:id', (req, res) => {
-    res.send('Hello Devices!');
-    Log("/devices/:id Route called.");
+app.get('/devices/id/:id', async (req, res) => {
+    const deviceToUse = switchBotDevices.find(d => d.id === req.params.id);
+    if (deviceToUse !== undefined) {
+        res.send(JSON.stringify({
+            id: deviceToUse.id,
+            type: deviceToUse.constructor.name,
+            customName: await getCustomName(deviceToUse.id)
+        }));
+    } else {
+        res.sendStatus(404);
+    }
+    Log("/devices/id/:id Route called.");
 });
 
 //Set device name
-app.get('/devices/:id/setName/:name', (req, res) => {
-    res.send('Hello Devices!');
-    Log("/devices/:id/setName/:name Route called.");
+app.get('/devices/id/:id/setName/:name', (req, res) => {
+    updateCustomName(req.params.id, req.params.name);
+    res.send(`Custom name ${req.params.name} set for device ${req.params.id}`);
+    Log("/devices/id/:id/setName/:name Route called.");
 });
 
 //Get device by name
-app.get('/devices/:name', (req, res) => {
-    res.send('Hello Devices!');
-    Log("/devices/:name Route called.");
+app.get('/devices/name/:name', async (req, res) => {
+    const id = await getIdByCustomName(req.params.name);
+    if (id !== null) {
+        const deviceToUse = switchBotDevices.find(d => d.id === id);
+        if (deviceToUse !== undefined) {
+            res.send(JSON.stringify({
+                id: deviceToUse.id,
+                type: deviceToUse.constructor.name,
+                customName: req.params.name
+            }));
+        }
+        else {
+            res.sendStatus(404);
+        }
+    }
+    else {
+        res.sendStatus(404);
+    }
+    Log("/devices/name/:name Route called.");
 });
 
 //Open curtain
-app.get('/device/:id/open', (req, res) => {
-    res.send('Hello Devices!');
-    Log("/device/:id/open Route called.");
+app.get('/devices/id/:id/open', (req, res) => {
+    const deviceToUse = switchBotDevices.find(d => d.id === req.params.id);
+    if (deviceToUse !== undefined) {
+        deviceToUse.open().then(() => {
+        res.send(`Device ${req.params.id} opening...`);
+        })
+        .catch(err => {
+            //Prevent the error from stopping the server
+            Log(err);
+            res.sendStatus(500);
+        });
+    }
+    else {
+        res.sendStatus(404);
+    }
+    Log("/devices/id/:id/open Route called.");
 });
 
 //Close curtain
-app.get('/device/:id/close', (req, res) => {
-    res.send('Hello Devices!');
-    Log("/device/:id/close Route called.");
+app.get('/devices/id/:id/close', (req, res) => {
+    const deviceToUse = switchBotDevices.find(d => d.id === req.params.id);
+    if (deviceToUse !== undefined) {
+        deviceToUse.close().then(() => {
+            res.send(`Device ${req.params.id} closing...`);
+        }
+        ).catch(err => {
+            //Prevent the error from stopping the server
+            Log(err);
+            res.sendStatus(500);
+        });
+    }
+    else {
+        res.sendStatus(404);
+    }
+    Log("/devices/id/:id/close Route called.");
 });
 
 //Set curtain position 
-app.get('/device/:id/setPosition/:position', (req, res) => {
-    res.send('Hello Devices!');
-    Log("/device/:id/setPosition/:position Route called.");
+app.get('/devices/id/:id/runToPos/:position', async (req, res) => {
+    const deviceToUse = switchBotDevices.find(d => d.id === req.params.id);
+    const percent = parseInt(req.params.position);
+    const done = false;
+    if (Number.isInteger(percent)) {
+        if (deviceToUse !== undefined) {
+            deviceToUse.runToPos(percent)
+                .catch((error) => {
+                    //Prevent the error from stopping the server
+                })
+                .finally(() => {
+                    res.send(`Device ${req.params.id} running to position ${req.params.position}...`);
+                    log(`Device ${req.params.id} running to position ${req.params.position}...`);
+                });
+        }
+        else {
+            res.sendStatus(404);
+        }
+    }
+    else {
+        res.send(`Invalid position ${req.params.position}`);
+    }
+    Log("/devices/id/:id/setPosition/:position Route called.");
 });
 
 module.exports = app;
