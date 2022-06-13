@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { getCustomName, updateCustomName, getIdByCustomName } = require('./database');
 const log = require('./log');
 const Log = require('./log');
@@ -42,14 +43,20 @@ app.get('/devices/id/:id', async (req, res) => {
 
 //Set device name
 app.get('/devices/id/:id/setName/:name', (req, res) => {
-    updateCustomName(req.params.id, req.params.name);
-    res.send(`Custom name ${req.params.name} set for device ${req.params.id}`);
-    Log("/devices/id/:id/setName/:name Route called.");
+    if(process.env.USE_MYSQL === "true"){
+        updateCustomName(req.params.id, req.params.name);
+        res.send(`Custom name ${req.params.name} set for device ${req.params.id}`);
+        Log("/devices/id/:id/setName/:name Route called.");
+    }
+    else{
+        res.send("Mysql is not enabled");
+    }
 });
 
 //Get device by name
 app.get('/devices/name/:name', async (req, res) => {
-    const id = await getIdByCustomName(req.params.name);
+    if(process.env.USE_MYSQL === "true"){
+        const id = await getIdByCustomName(req.params.name);
     if (id !== null) {
         const deviceToUse = switchBotDevices.find(d => d.id === id);
         if (deviceToUse !== undefined) {
@@ -66,6 +73,11 @@ app.get('/devices/name/:name', async (req, res) => {
     else {
         res.sendStatus(404);
     }
+    }
+    else{
+        res.send("Mysql is not enabled");
+    }
+
     Log("/devices/name/:name Route called.");
 });
 

@@ -11,7 +11,9 @@ app.use(express.json());
 app.use(routes);
 
 //init functionalitites
-InitDatabase();
+if(process.env.USE_MYSQL === "true"){
+    InitDatabase();   
+}
 InitSwitchBot();
 
 //Start server
