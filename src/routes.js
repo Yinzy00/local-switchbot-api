@@ -10,19 +10,23 @@ const express = require('express'),
 
 //Root
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('succes');
     Log("/ Route called.");
 });
 
 //Get list of devices
-app.get('/devices', (req, res) => {
-    res.send(JSON.stringify(switchBotDevices.map(d => {
-        return {
-            id: d.id,
-            type: d.constructor.name,
-            customName: getCustomName(d.id)
-        }
-    })));
+app.get('/devices', async (req, res) => {
+    const returnData = [];
+    for (let i = 0; i < switchBotDevices.length; i++) {
+        const device = switchBotDevices[i];
+        let customName = await getCustomName(device.id);
+        returnData.push({
+            id: device.id,
+            type: device.constructor.name,
+            customName: customName
+        });
+    }
+    res.send(JSON.stringify(returnData));
     Log("/devices Route called.");
 });
 
@@ -43,38 +47,38 @@ app.get('/devices/id/:id', async (req, res) => {
 
 //Set device name
 app.get('/devices/id/:id/setName/:name', (req, res) => {
-    if(process.env.USE_MYSQL === "true"){
+    if (process.env.USE_MYSQL === "true") {
         updateCustomName(req.params.id, req.params.name);
         res.send(`Custom name ${req.params.name} set for device ${req.params.id}`);
         Log("/devices/id/:id/setName/:name Route called.");
     }
-    else{
+    else {
         res.send("Mysql is not enabled");
     }
 });
 
 //Get device by name
 app.get('/devices/name/:name', async (req, res) => {
-    if(process.env.USE_MYSQL === "true"){
+    if (process.env.USE_MYSQL === "true") {
         const id = await getIdByCustomName(req.params.name);
-    if (id !== null) {
-        const deviceToUse = switchBotDevices.find(d => d.id === id);
-        if (deviceToUse !== undefined) {
-            res.send(JSON.stringify({
-                id: deviceToUse.id,
-                type: deviceToUse.constructor.name,
-                customName: req.params.name
-            }));
+        if (id !== null) {
+            const deviceToUse = switchBotDevices.find(d => d.id === id);
+            if (deviceToUse !== undefined) {
+                res.send(JSON.stringify({
+                    id: deviceToUse.id,
+                    type: deviceToUse.constructor.name,
+                    customName: req.params.name
+                }));
+            }
+            else {
+                res.sendStatus(404);
+            }
         }
         else {
             res.sendStatus(404);
         }
     }
     else {
-        res.sendStatus(404);
-    }
-    }
-    else{
         res.send("Mysql is not enabled");
     }
 
@@ -85,14 +89,13 @@ app.get('/devices/name/:name', async (req, res) => {
 app.get('/devices/id/:id/open', (req, res) => {
     const deviceToUse = switchBotDevices.find(d => d.id === req.params.id);
     if (deviceToUse !== undefined) {
-        deviceToUse.open().then(() => {
-        res.send(`Device ${req.params.id} opening...`);
-        })
-        .catch(err => {
-            //Prevent the error from stopping the server
-            Log(err);
-            res.sendStatus(500);
-        });
+        deviceToUse.open()
+            .catch(err => {
+                //Prevent the error from stopping the server
+            })
+            .finally(() => {
+                res.send(`Device ${req.params.id} opening...`);
+            });
     }
     else {
         res.sendStatus(404);
@@ -104,14 +107,15 @@ app.get('/devices/id/:id/open', (req, res) => {
 app.get('/devices/id/:id/close', (req, res) => {
     const deviceToUse = switchBotDevices.find(d => d.id === req.params.id);
     if (deviceToUse !== undefined) {
-        deviceToUse.close().then(() => {
-            res.send(`Device ${req.params.id} closing...`);
-        }
-        ).catch(err => {
-            //Prevent the error from stopping the server
-            Log(err);
-            res.sendStatus(500);
-        });
+        deviceToUse.close()
+            .catch(err => {
+                //Prevent the error from stopping the server
+                // Log(err);
+                // res.sendStatus(500);
+            })
+            .finally(() => {
+                res.send(`Device ${req.params.id} closing...`);
+            });
     }
     else {
         res.sendStatus(404);
@@ -143,6 +147,25 @@ app.get('/devices/id/:id/runToPos/:position', async (req, res) => {
         res.send(`Invalid position ${req.params.position}`);
     }
     Log("/devices/id/:id/setPosition/:position Route called.");
+});
+
+//Pause curtain
+app.get('/devices/id/:id/pause', (req, res) => {
+    const deviceToUse = switchBotDevices.find(d => d.id === req.params.id);
+    if (deviceToUse !== undefined) {
+        deviceToUse.pause()
+            .catch(err => {
+                //Prevent the error from stopping the server
+            })
+            .finally(() => {
+                res.send(`Device ${req.params.id} paused...`);
+                log(`Device ${req.params.id} paused...`);
+            });
+    }
+    else {
+        res.sendStatus(404);
+    }
+    Log("/devices/id/:id/pause Route called.");
 });
 
 module.exports = app;
