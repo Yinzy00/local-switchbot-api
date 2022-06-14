@@ -51,3 +51,9 @@ Set curtain position by device id
 - DB_USER
 - DB_PASSWORD
 - DB_NAME
+
+
+## Todo:
+- Device state monitoring using Advertising packets 
+- Add support for curtain moving mode
+- Other device types?
