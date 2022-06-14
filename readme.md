@@ -19,7 +19,7 @@ Turn on by adding env prop (USE_MYSQL = "true") to .env file
 
 ## Routes
 
-### /Devices
+### /devices
 Returns list of all found devices.
 
 ### /devices/id/:id
