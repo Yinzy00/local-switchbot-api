@@ -146,7 +146,7 @@ app.get('/devices/id/:id/runToPos/:position', async (req, res) => {
     else {
         res.send(`Invalid position ${req.params.position}`);
     }
-    Log("/devices/id/:id/setPosition/:position Route called.");
+    Log("/devices/id/:id/runToPos/:position Route called.");
 });
 
 //Pause curtain
