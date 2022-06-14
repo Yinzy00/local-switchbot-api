@@ -1,8 +1,12 @@
 # Local Switchbot Api
 
-My local switchbot api project to prevent using their cloud based open API. No longer dependent on an internet connection or switchbot servers.
+My Node.js local switchbot api project to prevent using their cloud based open API. No longer dependent on an internet connection or switchbot servers.
 
 Project created using [node-switchbot](https://www.npmjs.com/package/node-switchbot) package.
+
+To use the project you need:
+- Linux device
+- BTE compatible adapter
 
 ## Currently suupported
 - Switchbot Curtain
