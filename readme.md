@@ -4,40 +4,50 @@ My Node.js local switchbot api project to prevent using their cloud based open A
 
 Project created using [node-switchbot](https://www.npmjs.com/package/node-switchbot) package.
 
-To use the project you need:
+**To use the project you need:**
 - Linux device
 - BTE compatible adapter
 
 ## Currently suupported
-- [Switchbot Curtain](https://www.switch-bot.com/products/switchbot-curtain)
-    - Open
-    - Close
-    - runToPos
+**[Switchbot Curtain](https://www.switch-bot.com/products/switchbot-curtain)**
+- Open
+- Close
+- runToPos
+- pause
 
 ## Custom device names
+I added an optional feature to add custom names using the api.
+
 Turn on by adding env prop (USE_MYSQL = "true") to .env file
 
 ## Routes
 
-** /devices **
+**/devices**
+
 Returns list of all found devices.
 
-** /devices/id/:id **
+**/devices/id/:id**
+
 Returns device by device id
 
-** /devices/id/:id/setName/:name **
+**/devices/id/:id/setName/:name**
+
 Sets custom device name (use_mysql required!)
 
-** /devices/name/:name **
+**/devices/name/:name**
+
 Returns device by custom name (use_mysql required!)
 
-** /devices/id/:id/open **
+**/devices/id/:id/open**
+
 Open curtain by device id
 
-** /devices/id/:id/close **
+**/devices/id/:id/close**
+
 Close curtain by device id
 
-** /devices/id/:id/runToPos/:position **
+**/devices/id/:id/runToPos/:position**
+
 Set curtain position by device id
 
 ## Installation
@@ -51,14 +61,14 @@ See the document of the [@abandonware/noble](https://github.com/abandonware/nobl
 ## Configuration
 ### .Env properties
 **Requird Settings**
-- SERVER_PORT
+- `SERVER_PORT` port used by the api
 
 **Optional Settings**
-- USE_MYSQL
-- DB_HOST
-- DB_USER
-- DB_PASSWORD
-- DB_NAME
+- `USE_MYSQL` turn on use of mysql database for custom names.
+- `DB_HOST` database host for mysql database
+- `DB_USER` database user for mysql database
+- `DB_PASSWORD` database password for mysql database
+- `DB_NAME` database name for mysql database
 
 ## Todo:
 
