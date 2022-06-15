@@ -85,7 +85,7 @@ const setDeviceState = async (device, packet) => {
         if (JSON.stringify(device.state) != JSON.stringify(newState)) {
             //Update device state
             device.state = newState;
-            log(`${device.customName} position: ${device.state.position} battery: ${device.state.battery} lightLevel: ${device.state.lightLevel}`);
+            log(`${device.customName ? device.customName : device.id} position: ${device.state.position} battery: ${device.state.battery} lightLevel: ${device.state.lightLevel}`);
         }
     }
     else {
