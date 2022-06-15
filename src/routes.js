@@ -37,12 +37,13 @@ app.get('/devices/id/:id', (req, res) => {
         res.send(JSON.stringify({
             id: deviceToUse.id,
             type: deviceToUse.constructor.name,
-            customName: deviceToUse.customName
+            customName: deviceToUse.customName,
+            state: deviceToUse.state
         }));
     } else {
         res.sendStatus(404);
     }
-    Log("/devices/id/:id Route called.");
+    // Log("/devices/id/:id Route called.");
 });
 
 //Set device name
@@ -68,7 +69,8 @@ app.get('/devices/name/:name', (req, res) => {
                 res.send(JSON.stringify({
                     id: deviceToUse.id,
                     type: deviceToUse.constructor.name,
-                    customName: req.params.name
+                    customName: req.params.name,
+                    state: deviceToUse.state
                 }));
             }
             else {
