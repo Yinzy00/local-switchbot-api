@@ -76,7 +76,6 @@ I created [hubitat drivers](https://github.com/Yinzy00/hubitat-local-switchbot) 
 
 ## Todo:
 
-- Device state monitoring using Advertising packets 
 - Add support for curtain moving mode
 - Other device types?
 
