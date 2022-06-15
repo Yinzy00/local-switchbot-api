@@ -70,6 +70,10 @@ See the document of the [@abandonware/noble](https://github.com/abandonware/nobl
 - `DB_PASSWORD` database password for mysql database
 - `DB_NAME` database name for mysql database
 
+## Integration
+### Hubitat
+I created [hubitat drivers](https://github.com/Yinzy00/hubitat-local-switchbot) to integrate local switchbot and added documentation how to use them.
+
 ## Todo:
 
 - Device state monitoring using Advertising packets 
