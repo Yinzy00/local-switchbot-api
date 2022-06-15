@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { getCustomName, updateCustomName, getIdByCustomName } = require('./database');
+const { updateCustomName } = require('./database');
 const log = require('./log');
 const Log = require('./log');
 const sleep = require('./sleep');
@@ -19,7 +19,7 @@ app.get('/devices', async (req, res) => {
     const returnData = [];
     for (let i = 0; i < switchBotDevices.length; i++) {
         const device = switchBotDevices[i];
-        let customName = await getCustomName(device.id);
+        let customName = device.customName;
         returnData.push({
             id: device.id,
             type: device.constructor.name,
@@ -31,13 +31,13 @@ app.get('/devices', async (req, res) => {
 });
 
 //Get device by id
-app.get('/devices/id/:id', async (req, res) => {
+app.get('/devices/id/:id', (req, res) => {
     const deviceToUse = switchBotDevices.find(d => d.id === req.params.id);
     if (deviceToUse !== undefined) {
         res.send(JSON.stringify({
             id: deviceToUse.id,
             type: deviceToUse.constructor.name,
-            customName: await getCustomName(deviceToUse.id)
+            customName: deviceToUse.customName
         }));
     } else {
         res.sendStatus(404);
@@ -46,9 +46,9 @@ app.get('/devices/id/:id', async (req, res) => {
 });
 
 //Set device name
-app.get('/devices/id/:id/setName/:name', (req, res) => {
+app.get('/devices/id/:id/setName/:name', async (req, res) => {
     if (process.env.USE_MYSQL === "true") {
-        updateCustomName(req.params.id, req.params.name);
+        await updateCustomName(req.params.id, req.params.name);
         res.send(`Custom name ${req.params.name} set for device ${req.params.id}`);
         Log("/devices/id/:id/setName/:name Route called.");
     }
@@ -58,9 +58,10 @@ app.get('/devices/id/:id/setName/:name', (req, res) => {
 });
 
 //Get device by name
-app.get('/devices/name/:name', async (req, res) => {
+app.get('/devices/name/:name', (req, res) => {
     if (process.env.USE_MYSQL === "true") {
-        const id = await getIdByCustomName(req.params.name);
+        // const id = await getIdByCustomName(req.params.name);
+        const id = switchBotDevices.find(d => d.customName === req.params.name).id;
         if (id !== null) {
             const deviceToUse = switchBotDevices.find(d => d.id === id);
             if (deviceToUse !== undefined) {
